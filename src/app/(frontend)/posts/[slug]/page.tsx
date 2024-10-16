@@ -1,24 +1,21 @@
-import { client } from "@/sanity/lib/client";
-import { POST_QUERY } from "@/sanity/lib/queries";
+import { draftMode } from "next/headers";
+import { loadQuery } from "@/sanity/lib/loader";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Post } from "@/components/Post";
+import { POST_QUERY } from "@/sanity/lib/queries";
+import { POST_QUERYResult } from "@/sanity/types";
+import { PostPreview } from "@/components/PostPreview";
 
 type PostIndexProps = { params: { slug: string } };
 
-const options = { next: { revalidate: 60 } };
-
 export default async function Page({ params }: PostIndexProps) {
-  const post = await client.fetch(POST_QUERY, params, options);
+  const initial = await loadQuery<POST_QUERYResult>(POST_QUERY, params, {
+    next: { tags: [`post:${params.slug}`, "author", "category"] },
+  });
 
-  if (!post) {
+  if (!initial.data) {
     notFound();
   }
 
-  return (
-    <main className='container mx-auto grid grid-cols-1 gap-6 p-12'>
-      <h1 className='text-4xl font-bold text-balance'>{post?.title}</h1>
-      <hr />
-      <Link href='/posts'>&larr; Return to index</Link>
-    </main>
-  );
+  return <main className='container mx-auto grid grid-cols-1 gap-6 p-12'>{draftMode().isEnabled ? <PostPreview initial={initial} /> : <Post {...initial.data} />}</main>;
 }

@@ -1,29 +1,20 @@
-import Link from "next/link";
-import { client } from "@/sanity/lib/client";
+import { draftMode } from "next/headers";
+import { loadQuery } from "@/sanity/lib/loader";
+import { PostCard } from "@/components/PostCard";
+import { PostCardPreview } from "@/components/PostCardPreview";
 import { POSTS_QUERY } from "@/sanity/lib/queries";
-import { Suspense } from "react";
-
-const options = { next: { revalidate: 60 } };
+import { POSTS_QUERYResult } from "@/sanity/types";
+import { Title } from "@/components/Title";
 
 export default async function Page() {
-  const posts = await client.fetch(POSTS_QUERY, {}, options);
+  const initial = await loadQuery<POSTS_QUERYResult>(POSTS_QUERY, {}, { next: { tags: ["post", "author", "category"] } });
 
   return (
     <main className='container mx-auto grid grid-cols-1 gap-6 p-12'>
-      <h1 className='text-4xl font-bold'>Post index</h1>
-      <ul className='grid grid-cols-1 divide-y divide-blue-100'>
-        <Suspense fallback={<li>Loading...</li>}>
-          {posts.map((post) => (
-            <li key={post._id}>
-              <Link className='block p-4 hover:text-blue-500' href={`/posts/${post?.slug?.current}`}>
-                {post?.title}
-              </Link>
-            </li>
-          ))}
-        </Suspense>
-      </ul>
-      <hr />
-      <Link href='/'>&larr; Return home</Link>
+      <Title>Post Index</Title>
+      <div className='flex flex-col gap-24 py-12'>
+        {draftMode().isEnabled ? <PostCardPreview initial={initial} /> : initial.data.map((post) => <PostCard key={post._id} {...post} />)}
+      </div>
     </main>
   );
 }

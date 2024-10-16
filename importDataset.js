@@ -5,7 +5,7 @@ const sanityImport = require("@sanity/import"); // Import Sanity import module
 // Set up the client for your Sanity project
 const client = createClient({
   projectId: "st4vwzqs", // Replace with your Sanity project ID
-  dataset: "production", // Replace with the target dataset name
+  dataset: "development", // Replace with the target dataset name
   token:
     "skir1PeQduSojoA8AMleWsmUK48NVklgPk5tWLEXKknigw2xftcfNjbR9fhzGGNRDnoLRXJ1hr3vQnle1LA19ZovX7k7aY7GskUIKcH5PyX57asjJubRji9io5Tvz58WYSq7prArrkmrnQ6JaKqAE55cMIbXApQtTWkRr9OUX5VlyptlED8X", // API token with sufficient write permissions
   useCdn: false,
